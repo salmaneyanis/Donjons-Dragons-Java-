@@ -1,0 +1,620 @@
+@startuml
+skinparam linetype ortho
+
+' Ajout des stéréotypes pour les interfaces et classes abstraites
+skinparam class {
+    BackgroundInterface<<interface>> LightGreen
+    BackgroundAbstract<<abstract>> LightGray
+}
+
+class CreationPersonnage {
+    + creerPersonnage(scanner: Scanner, numeroJoueur: int): Joueur
+}
+
+CreationPersonnage --> personnages.Joueur : créer
+CreationPersonnage --> races : utilise
+CreationPersonnage --> classes : utilise
+
+class Main {
+    + main(args: String[]): void
+}
+
+class Jeu {
+    + demarrer(): void
+    + partie(scanner : Scanner, participants : List<Entite>, joueurs : List<Joueur>, monstres : List<Monstre>, mj : Maitredujeux, numeroDonjon : int, map : MapMilieu, numeroTour : int) : void
+    + choisirNouvelleCartes(scanner : Scanner): map_milieu
+    + VraiJeux(): void
+}
+
+Jeu --> equipements.GestionEquipements : utilise
+Jeu --> equipements.Equipement : utilise
+Jeu --> "classes" : utilise
+Jeu *--> "maitredujeux.Maitredujeux" : compose > m_mj
+Jeu --> interfacejeu : gère
+Jeu --> Des.Des : utilise
+Jeu --> Sort : utilise
+Jeu --> monstres: utilise
+Jeu --> personnages: utilise
+
+package classes {
+    abstract class Archetype <<abstract>> {
+        - m_nom : String
+        - m_pvDeBase : int
+        + Archetype(nom : String, pvDeBase)
+        + {abstract} genererEquipementDeBase(joueur: Joueur) : void
+        + getNom() : String
+        + getPvDeBase() : int
+        + toString() : String
+    }
+
+    class Clerc {
+        + Clerc()
+        + genererEquipementDeBase(joueur: Joueur) : void
+        + toString() : String
+    }
+
+    class Guerrier {
+        + Guerrier()
+        + genererEquipementDeBase(joueur: Joueur) : void
+        + toString() : String
+    }
+
+    class Magicien {
+        + Magicien()
+        + genererEquipementDeBase(joueur: Joueur) : void
+        + toString() : String
+    }
+
+    class Roublard {
+        + Roublard()
+        + genererEquipementDeBase(joueur: Joueur) : void
+        + toString() : String
+    }
+
+    Archetype <|-- Clerc
+    Archetype <|-- Guerrier
+    Archetype <|-- Magicien
+    Archetype <|-- Roublard
+}
+Archetype --> personnages.Joueur
+Archetype --> equipements.Equipement
+Archetype --> equipements.GestionEquipements
+
+package Des {
+    class Des {
+        - m_random : Random {static}
+        - DICE_FACES : String[] {static, final}
+        + lancerDes(notation: String) : int {static}
+        + lancerDesAvecAnimation(notation: String) {static}
+        - lancerDes(nombreFaces: int, nombreDes: int) : int {static}
+        - printDiceFace(num: int, faces: int) : void {static}
+        + toString() : String
+        + main(args: String[]) {static}
+    }
+}
+
+package equipements {
+    interface Equipement <<interface>> {
+        + getEnchante(): int
+        + setEnchante(enchante: int): void
+        + getNom(): String
+        + getType(): String
+        + getModificateurVitesse(): int
+        + getModificateurForce(): int
+        + getPortee(): int
+        + getDegats(): String
+        + getClasseArmure(): int
+        + estArme(): boolean
+        + estArmure(): boolean
+    }
+
+    class GestionEquipements {
+        + initialiserEquipements(): List<Equipement> {static}
+        + toString(): String
+        + equiperPremiereArmeEtArmure(Personnage, List<Equipement>): void {static}
+    }
+
+    package Armes {
+        abstract class Armes <<abstract>> {
+            - m_nom: String
+            - m_degats: String
+            - m_portee: int
+            - m_type: String
+            - enchante: int
+            + Armes(nom: String, degats: String, portee: int, type: String)
+            + getEnchante(): int
+            + setEnchante(enchante: int): void
+            + getDegats(): String
+            + getPortee(): int
+            + getNom(): String
+            + getType(): String
+            + getModificateurVitesse(): int
+            + getModificateurForce(): int
+            + toString(): String
+        }
+
+        class ArmeCourante {
+            + ArmeCourante(nom: String, degats: String)
+            + getClasseArmure(): int
+            + estArme(): boolean
+            + estArmure(): boolean
+            + toString(): String
+            + estParticipant(): boolean
+        }
+
+        class ArmeDeGuerre {
+            + ArmeDeGuerre(nom: String, degats: String)
+            + getModificateurVitesse(): int
+            + getModificateurForce(): int
+            + getClasseArmure(): int
+            + toString(): String
+            + estArme(): boolean
+            + estArmure(): boolean
+            + estParticipant(): boolean
+        }
+
+        class ArmeDistance {
+            + ArmeDistance(nom: String, degats: String, portee: int)
+            + toString(): String
+            + getClasseArmure(): int
+            + estArme(): boolean
+            + estArmure(): boolean
+            + estParticipant(): boolean
+        }
+
+        Armes <|-- ArmeCourante
+        Armes <|-- ArmeDeGuerre
+        Armes <|-- ArmeDistance
+    }
+
+    package Armures {
+        abstract class Armure <<abstract>> {
+            - m_nom: String
+            - m_classeArmure: int
+            - m_type: String
+            + Armure(nom: String, classeArmure: int, type: String)
+            + getClasseArmure(): int
+            + getNom(): String
+            + getType(): String
+            + getModificateurVitesse(): int
+            + getModificateurForce(): int
+            + getPortee(): int
+            + getDegats(): String
+            + toString(): String
+            + afficher(): String
+        }
+
+        class ArmureLegere {
+            + ArmureLegere(nom: String, classeArmure: int)
+            + getEnchante(): int
+            + setEnchante(enchante: int): void
+            + getPortee(): int
+            + getDegats(): String
+            + getClasseArmure(): int
+            + estArmure(): boolean
+            + estArme(): boolean
+            + toString(): String
+            + estParticipant(): boolean
+        }
+
+        class ArmureLourde {
+            + ArmureLourde(nom: String, classeArmure: int)
+            + getEnchante(): int
+            + setEnchante(enchante: int): void
+            + getModificateurVitesse(): int
+            + getPortee(): int
+            + getDegats(): String
+            + toString(): String
+            + getClasseArmure(): int
+            + estArmure(): boolean
+            + estArme(): boolean
+            + estParticipant(): boolean
+        }
+
+        Armure <|-- ArmureLegere
+        Armure <|-- ArmureLourde
+    }
+
+    Equipement <|.. Armes
+    Equipement <|.. Armure
+    interfacejeu.ContenuCase <|-- Equipement
+    GestionEquipements --> Equipement
+    GestionEquipements --> equipements.Equipement : crée
+    GestionEquipements --> personnages.Joueur : équipe
+}
+
+package interfacejeu {
+    interface ContenuCase <<interface>> {
+        + getTypeContenu(): String
+        + afficher(): String
+        + estParticipant(): boolean
+    }
+
+    ContenuCase --> personnages.Entité.entite
+
+    class BarreHaut {
+        - m_barre: String {static, final}
+        + Affichage(joueurActif: entite, donj: int, participants: List<entite>, tour: int)
+        + saut*Ligne(nb: int): void
+    }
+    BarreHaut --> personnages.Entité.entite
+
+    class Case {
+        - contenu: ContenuCase
+        + Case()
+        + getM_Contenu(): ContenuCase
+        + setM_Contenu(contenu: ContenuCase): void
+        + estVide(): boolean
+        + estEquipement(): boolean
+        + passable(): boolean
+        + accessibleParJoueur(): boolean
+        + afficher(): String
+    }
+
+    class Inter_manag {
+        + main(args: String[]): void {static}
+    }
+
+    class map_milieu {
+        - m_map: Case[][]
+        - m_rows: int
+        - m_cols: int
+        - m_letters: String
+
+        + MapMilieu(int, int)
+        - initializeMap(): void
+        - generateLetters(int): String
+        + isValidPositionAndFree(int, int): boolean
+        + addObstacle(int, int): void
+        + addEquipment(int, int, Equipement): void
+        + UpdateCase(int, int, ContenuCase): void
+        + videCase(int, int): void
+        + recupererEquipementsAdjacents(int, int): List<Equipement>
+        + recupererEquipement(int, int): Equipement
+        + nettoyerParticipants(): void
+        + Print(List<Entite>): void
+        + PrintVide(): void
+        + map1(): MapMilieu {static}
+        + map2(): MapMilieu {static}
+        + map3(): MapMilieu {static}
+        + addRandomEquipment(int, int): void
+        + getCase(int, int): Case
+    }
+    map_milieu *--> "1..*" Case : compose > m_map
+    map_milieu --> equipements.GestionEquipements : utilise
+
+    class Obstacle {
+        + getTypeContenu(): String
+        + afficher(): String
+        + estParticipant(): boolean
+    }
+
+    ContenuCase <|.. Obstacle
+
+    Case o--> "0..1" ContenuCase : agrège > m_contenu
+    map_milieu --> Case
+
+    Inter_manag --> BarreHaut
+    Inter_manag --> map_milieu
+}
+
+interfacejeu.map_milieu --> monstres.Monstre
+interfacejeu.map_milieu --> personnages.Joueur
+Inter_manag --> monstres.Dragon
+Inter_manag --> personnages.Joueur
+Inter_manag --> maitredujeux.Maitredujeux
+Inter_manag --> races.Races
+Inter_manag --> classes.Archetype
+BarreHaut --> personnages.Entité.entite
+interfacejeu.map_milieu --> equipements.Equipement
+ContenuCase <|.. equipements.Equipement
+
+package maitredujeux {
+    class Maitredujeux {
+        - m_lignes: ArrayList<String>
+        - m_compteurMonstres: Map<String, Integer>
+        - m_especesPerso: ArrayList<String>
+        - m_scanner: Scanner
+        - m_monstresPersonnalises: Map<String, Monstreperso>
+
+        + Maitredujeux()
+        + ajouterLignes(ligne: String): void
+        + afficherLignes(): void
+        + creerMonstre(): Monstre
+        + creerMonstrePerso(): Monstreperso
+        + intervenir(participants: ArrayList<entite>, map: map_milieu): void
+        + deplacerEntite(entites: List<entite>, map: map_milieu): void
+        + creerMonstreEspece(espece: String): Monstre
+        + saisirEntierPositif(message: String): int
+        + saisirEntierMin(message: String, min: int): int
+        + attaquerEntite(entites : ArrayList<entite>): void
+    }
+}
+
+maitredujeux.Maitredujeux --> personnages.Entité.entite : gère
+maitredujeux.Maitredujeux --> Des : utilise
+maitredujeux.Maitredujeux *--> "0..*" monstres.Monstre : compose > m_monstres
+maitredujeux.Maitredujeux *--> "0..*" monstres.Monstreperso : compose > m_monstresPersonnalises
+maitredujeux.Maitredujeux --> interfacejeu.map_milieu : interagis
+
+package monstres {
+    abstract class Monstre <<abstract>> {
+        - m_espece: String
+        - m_numero: int
+        - m_pointDeVie: int
+        - m_force: int
+        - m_dexterite: int
+        - m_initiative: int
+        - m_classeArmure: int
+        - m_typeAttaque: String
+        - m_portee: int
+        - m_degats: String
+        - posX: int
+        - posY: int
+
+        + Monstre(espece: String, numero: int, pointDeVie: int, force: int, dexterite: int, initiative: int, classeArmure: int, typeAttaque: String, portee: int, degats: String, vitesse : int)
+        + {abstract} attaquer(cible: Joueur): void
+        + {abstract} getPvDeBase(): int
+        + {abstract} afficher(): String
+        + getPointDeVie(): int
+        + getDegats(): String
+        + getForce(): int
+        + getPortee(): int
+        + getTypeAttaque(): String
+        + getEspece(): String
+        + getNumero(): int
+        + getDexterite(): int
+        + subirDegats(degatsSubis: int): int
+        + getClasseArmure(): int
+        + getInitiative(): int
+        + estMort(): boolean
+        + getPosX(): int
+        + getPosY(): int
+        + setPosXY(x: int, y: int): void
+        + getTypeContenu(): String
+        + getAffichageCourt(): String
+        + getAffichageLong(): String
+        + getNom(): String
+
+        + setPosSansVerif(x: int, y: int) : void
+        + CombatResultat(jetAttaque: int, modificateur: int, succes: boolean, degatsInfliges: int, classeArmureCible: int)
+    }
+
+    class Monstreperso {
+        - icone: String
+        - m_PvDeBase: int
+
+        + Monstreperso(String, int, int, int, int, int, int, String, int, String, String, int)
+        + attaquerEtObtenirResultat(Joueur): CombatResultat
+        + afficherResultatAttaque(CombatResultat, Joueur): void
+        + setIcone(String): void
+        + getIcone(): String
+        + getTypeContenu(): String
+        + afficher(): String
+        + getPvDeBase(): int
+        + estParticipant(): boolean
+    }
+
+    class Dragon {
+        + Dragon(numero: int)
+        + attaquer(cible: Joueur): void
+        + getPvDeBase(): int
+        + afficher(): String
+        + getTypeContenu(): String
+        + afficher(): String
+        + getPvDeBase(): int
+        + estParticipant(): boolean
+    }
+
+    class Gobelin {
+        + Gobelin(numero: int)
+        + attaquer(cible: Joueur): void
+        + getPvDeBase(): int
+        + afficher(): String
+        + getTypeContenu(): String
+        + afficher(): String
+        + getPvDeBase(): int
+        + estParticipant(): boolean
+    }
+
+    class Squelette {
+        + Squelette(numero: int)
+        + attaquer(cible: Joueur): void
+        + getPvDeBase(): int
+        + afficher(): String
+        + getTypeContenu(): String
+        + afficher(): String
+        + getPvDeBase(): int
+        + estParticipant(): boolean
+    }
+
+    Monstre <|-- Monstreperso
+    Monstre <|-- Dragon
+    Monstre <|-- Gobelin
+    Monstre <|-- Squelette
+}
+
+monstres.Monstre ..|> interfacejeu.ContenuCase : implementes
+monstres.Monstre --> personnages.Joueur : attaque
+monstres.Monstre --> Des.Des : utilise
+monstres.Monstreperso --> Des.Des : utilise
+monstres.Dragon --> Des.Des : utilise
+monstres.Gobelin --> Des.Des : utilise
+monstres.Squelette --> Des.Des : utilise
+
+package personnages {
+    abstract class Personnage <<abstract>> {
+        - String m_nom
+        - int m_pointDeVie
+        - int m_force
+        - int m_dexterite
+        - int m_vitesse
+        - int m_initiative
+        - Equipement[] m_equipementEquipe
+
+        + Personnage(String nom, int pointDeVie, int force, int dexterite, int vitesse, int initiative)
+
+        + String getNom()
+        + int getPointDeVie()
+        + int getForce()
+        + int getDexterite()
+        + int getVitesse()
+        + int getInitiative()
+
+        + void setNom(String nom_change)
+        + void setPointDeVie(int pv)
+        + void addPdV(int pv)
+        + void setForce(int force_change)
+        + void setDexterite(int dexterite_change)
+        + void setVitesse_change(int vitesse_change)
+        + void setVitesse(int vitesse_change)
+        + void setInitiative(int initiative_change)
+
+        + boolean estMort()
+        + List<Equipement> getEquiper()
+        + abstract void attaquer(Monstre cible)
+        + abstract void equiper(Equipement equipement)
+        + abstract void soignerComplet()
+
+        + String toString()
+    }
+
+    class Joueur {
+        - ArrayList<Equipement> m_inventaire
+        - int m_posX
+        - int m_posY
+
+        + Joueur(String, Archetype, Races)
+        + void attaquer(Monstre)
+        + void equiper(Equipement)
+        + void ajouterEquipement(Equipement)
+        + void afficherInventaire()
+        + void seDeplacer(String, MapMilieu, int)
+        + void ramasserEquipement(MapMilieu)
+        + int getPosX()
+        + int getPosY()
+        + boolean setPosXY(int, int, MapMilieu)
+        + void setPosSansVerif(int, int)
+        + Archetype getClasse()
+        + Races getRace()
+        + int getClasseArmureActuelle()
+        + String getNomArme()
+        + ArrayList<Equipement> getEquipements()
+        + String toString()
+        + String getTypeContenu()
+        + String afficher()
+        + String affichageClass()
+        + String getAffichageCourt()
+        + String getAffichageLong()
+        + String afficherPVDB()
+        + void setPV(int)
+        + void soignerComplet()
+        + boolean estMonstre()
+        + boolean estParticipant()
+    }
+
+    package Entité {
+        interface entite <<interface>> {
+            + affichageClass(): String
+            + getAffichageCourt(): String
+            + getAffichageLong(): String
+            + getPosX(): int
+            + getPosY(): int
+            + setPosXY(x: int, y: int): void
+            + getNom(): String
+        }
+    }
+
+    Personnage <|-- Joueur
+    Joueur ..|> entite
+    Joueur ..|> interfacejeu.ContenuCase
+
+    Joueur *--> "1" classes.Archetype : compose > m_classe
+    Joueur *--> "1" races.Races : compose > m_race
+    Joueur o--> "0..*" equipements.Equipement : agrège > m_inventaire
+    Joueur --> monstres.Monstre
+    Joueur --> interfacejeu.map_milieu
+    Joueur --> Des.Des
+    Personnage o--> "0..*" equipements.Equipement : agrège > m_equipementEquipe
+    Personnage --> monstres.Monstre
+}
+
+package races {
+    abstract class Races <<abstract>> {
+        - m_nom: String
+        - m_bonusForce: int
+        - m_bonusDexterite: int
+        - m_bonusVitesse: int
+        - m_bonusPV: int
+        - m_bonusInitiative: int
+
+        + Races(nom: String, bonusForce: int, bonusDexterite: int, bonusVitesse: int, bonusInitiative: int)
+        + appliquerBonus(personnage: Personnage): void
+        + getNom(): String
+        + toString(): String
+        - calculerStat(bonus: int): int
+    }
+
+    class Elfe {
+        + Elfe()
+    }
+
+    class Halfelin {
+        + Halfelin()
+    }
+
+    class Humain {
+        + Humain()
+    }
+
+    class Nain {
+        + Nain()
+    }
+
+    Races <|-- Elfe
+    Races <|-- Halfelin
+    Races <|-- Humain
+    Races <|-- Nain
+    Races --> personnages.Personnage : applique des Bonus à
+    Races --> Des.Des : utilise pour les stats
+}
+
+package Sort {
+    abstract class Sort <<abstract>> {
+        - nom: String
+        + Sort(nom: String)
+        + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+        + {abstract} utiliser(entite : cible1, entite : cible2): void
+        + getNom(): String
+    }
+
+    class ArmeMagique {
+        + ArmeMagique()
+        + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+        + {abstract} utiliser(entite : cible1, entite : cible2): void
+    }
+
+    class Guerison {
+        + Guerison()
+        + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+        + {abstract} utiliser(entite : cible1, entite : cible2): void
+    }
+
+    class BougieWoogie {
+        + BoogieWoogie()
+        + utilisermap(entite : cible1, entite : cible2), map_milieu : map): void
+        + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+        + {abstract} utiliser(entite : cible1, entite : cible2): void
+    }
+
+    Sort <|-- ArmeMagique
+    Sort <|-- Guerison
+    ArmeMagique --> personnages.Joueur : vise
+    ArmeMagique --> equipements.Equipement : enchante
+    Guerison --> personnages.Joueur : soigne
+    Guerison --> Des.Des : Point de vie génerer
+    Sort --> personnages.Joueur : peut viser
+    Sort --> monstres.Monstre : peut viser
+}
+
+@enduml

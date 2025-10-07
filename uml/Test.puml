@@ -1,0 +1,46 @@
+ @startuml '[https://plantuml.com/sequence-diagram](https://plantuml.com/sequence-diagram)'
+skinparam linetype ortho
+
+package Sort {
+                abstract class Sort {
+                    - nom: String
+                    + Sort(nom: String)
+                    + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+                    + {abstract} utiliser(entite : cible1, entite : cible2): void
+                    + getNom(): String
+                }
+
+                class ArmeMagique {
+                    + ArmeMagique()
+                    + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+                    + {abstract} utiliser(entite : cible1, entite : cible2): void
+                }
+
+                class Guerison {
+                    + Guerison()
+                    + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+                    + {abstract} utiliser(entite : cible1, entite : cible2): void
+                }
+
+                class BougieWoogie {
+                + BoogieWoogie()
+                + utilisermap(entite : cible1, entite : cible2), map_milieu : map): void
+                + {abstract} utiliser(Joueur : cible1, Joueur : cible2): void
+                + {abstract} utiliser(entite : cible1, entite : cible2): void
+                }
+
+                Sort <|-- ArmeMagique
+                Sort <|-- Guerison
+
+
+
+
+            }
+
+            Sort --> personnages.Joueur : peut viser
+            Sort --> monstres.Monstre : peut viser
+            Guerison --> personnages.Joueur : soigne
+            ArmeMagique --> personnages.Joueur : vise
+            ArmeMagique --> equipements.Equipement : enchante
+
+@enduml
